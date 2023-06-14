@@ -1,0 +1,12 @@
+{% extends "base.j2" %}
+
+{% block body %}
+<div class="h-full px-8 py-6 sm:px-16 md:px-28">
+<a class="block mb-4 text-white opacity-50 hover:opacity-80" href="{{url_for('index')}}"><< Back to main page </a>
+<h1 class="mb-4 text-4xl font-semibold text-white">{{entry.timestamp.strftime('%d.%m.%Y')}}</h1>
+<hr class="mb-4">
+    <div class="text-white entry-container text-l">
+    <p class="text-white text-l">{{entry.text}}</p>
+    </div>
+</div>
+{% endblock body %}
