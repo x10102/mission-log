@@ -9,7 +9,6 @@ from users import User, UserRole
 from forms import *
 from entries import Entry
 from markup import parse_comment_string
-from util import decorate_if
 
 # Builtins
 from sys import argv
