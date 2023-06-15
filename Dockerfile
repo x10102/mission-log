@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY requirements.txt .
 
+RUN uname -a | grep -i armv7 && apk add --no-cache rust cargo
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
