@@ -1,0 +1,5 @@
+data
+static/src
+tailwind.config.js
+__pycache__
+.venv

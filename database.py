@@ -45,6 +45,7 @@ INSERT INTO User_Role (id, name) VALUES (1, "Owner"), (2, "User");
 class Database:
 
     def __init__(self, filepath: str = 'data/diary.db', drop: bool = False, output_queries = False) -> None:
+
         if exists(filepath) and drop:
             remove(filepath)
         
@@ -75,6 +76,13 @@ class Database:
         query = "INSERT INTO User (username, password, idrole) VALUES (?, ?, ?);"
         data = (u.login, u.password, u.role.value)
         self._tryexec(query, data)
+
+    def create_default_user(self, u: User) -> None:
+        query = "SELECT id FROM User WHERE username=?"
+        if not self._tryexec(query, (u.login,)).fetchone():
+            query = "INSERT INTO User (username, password, idrole) VALUES (?, ?, ?);"
+            data = (u.login, u.password, u.role.value)
+            self._tryexec(query, data)
     
     def get_frontpage(self, page: int = 0, private=False):
         if not private:

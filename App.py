@@ -1,6 +1,7 @@
 # External
 from flask import Flask, redirect, url_for, render_template, request, abort, flash
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from waitress import serve
 
 # Internal
 from core import db
@@ -9,10 +10,11 @@ from users import User, UserRole
 from forms import *
 from entries import Entry
 from markup import parse_comment_string
+from secrets import token_bytes
 
 # Builtins
 from sys import argv
-from os import remove
+from os import remove, environ as env
 import json
 
 app = Flask(__name__)
@@ -122,8 +124,20 @@ if __name__ == "__main__":
                 db.close()
                 exit(0)
     
+    if env.get('INIT_USER'):
+        user = env.get('INIT_USER')
+        password = env.get('INIT_PASSWORD')
+        u = User(login=user, password=pw_hash(password), role=UserRole.OWNER)
+        db.create_default_user(u)
+        del u
+
     app.config.from_file('config.json', load=json.load)
     app.context_processor(add_globals)
     app.add_template_global(current_user, 'current_user')
     app.add_template_global('base.j2', 'current_base')
-    app.run(debug=True, host="0.0.0.0")
+    if not app.config['SECRET_KEY']:
+        app.config['SECRET_KEY'] = token_bytes(24)
+    if app.config['FLASK_DEBUG']:
+        app.run(host="0.0.0.0")
+    else:
+        serve(app, port=8080)
