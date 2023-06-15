@@ -7,5 +7,6 @@ from users import User
 class Entry():
     text: str
     author: User
+    private: bool
     timestamp: datetime = datetime.now()
     eid: int = 0

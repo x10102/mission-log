@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" class="w-full h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,300,0,0" />
+    <title>{{user}}'s Mission Log</title>
+    {% block head %}
+    {% endblock head%}
+</head>
+<div id="particles-js">
+    
+</div>
+<body class="w-full h-full pb-24 m-0 bg-gradient-to-b from-[#373B44] to-[#4286f4] flex flex-col items-center justify-center">
+<h1 class="md:text-[20vh] text-[10vh] font-semibold text-white mb-0">{{code}}</h1>
+<h2 class="md:text-[4vh] text-[2vh] font-semibold text-white mt-[-4vh]"><i>{{message}}</i></h2>
+<a class="mt-8 text-xl text-white" href="{{url_for('index')}}">Go back?</a>
+</body>
+</html>

@@ -11,7 +11,7 @@ from collections import namedtuple
 
 from markup import remove_tags
 
-fp_entry = namedtuple('FrontpageEntry', 'id date text')
+fp_entry = namedtuple('FrontpageEntry', 'id date text private')
 
 DB_CREATE_SCRIPT = """
 CREATE TABLE IF NOT EXISTS User_Role (
@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS Entry (
 id          INTEGER     NOT NULL PRIMARY KEY AUTOINCREMENT,
 timestamp   DATETIME    NOT NULL,
 text        TEXT        NOT NULL,
+private     BOOLEAN     NOT NULL DEFAULT 0,
 iduser      INTEGER     NOT NULL,
 FOREIGN KEY (iduser) REFERENCES User(id)
     ON DELETE RESTRICT
@@ -75,11 +76,14 @@ class Database:
         data = (u.login, u.password, u.role.value)
         self._tryexec(query, data)
     
-    def get_frontpage(self, page: int = 0):
-        query = "SELECT id, timestamp, text FROM Entry ORDER BY id DESC LIMIT 20 OFFSET ?"
+    def get_frontpage(self, page: int = 0, private=False):
+        if not private:
+            query = "SELECT id, timestamp, text, private FROM Entry WHERE private=0 ORDER BY id DESC LIMIT 20 OFFSET ?"
+        else:
+            query = "SELECT id, timestamp, text, private FROM Entry ORDER BY id DESC LIMIT 20 OFFSET ?"
         data = (page * 20,)
         rows = self._tryexec(query, data).fetchall()
-        entries = [fp_entry(row[0], datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), remove_tags(row[2]) if len(row[2]) < 150 else remove_tags(row[2][:147])+'...') for row in rows]
+        entries = [fp_entry(row[0], datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), remove_tags(row[2]) if len(row[2]) < 150 else remove_tags(row[2][:147])+'...', row[3]) for row in rows]
         return entries
     
     def get_user(self, uid: int) -> t.Optional[User]:
@@ -99,15 +103,19 @@ class Database:
             return User(row[1], row[2], UserRole(row[3]), row[0])
 
     def create_entry(self, e: Entry):
-        query = "INSERT INTO Entry (text, timestamp, iduser) VALUES (?, ?, ?)"
-        data = (e.text, e.timestamp.strftime("%d-%m-%Y %H:%M:%S"), e.author.get_id())
+        query = "INSERT INTO Entry (text, timestamp, iduser, private) VALUES (?, ?, ?, ?)"
+        data = (e.text, e.timestamp.strftime("%d-%m-%Y %H:%M:%S"), e.author.get_id(), e.private)
         cur = self._tryexec(query, data)
         return cur.lastrowid
 
     def get_entry(self, eid: int) -> t.Optional[Entry]:
-        query = "SELECT id, timestamp, text, iduser FROM Entry WHERE id=?"
+        query = "SELECT id, timestamp, text, iduser, private FROM Entry WHERE id=?"
         row = self._tryexec(query, (eid,)).fetchone()
         if not row:
             return None
         else:
-            return Entry(row[2], self.get_user(row[3]), datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), row[0])
+            return Entry(row[2], self.get_user(row[3]), row[4], datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), row[0])
+        
+    def delete_entry(self, eid: int) -> None:
+        query = "DELETE FROM Entry WHERE id=?"
+        self._tryexec(query, (eid,))

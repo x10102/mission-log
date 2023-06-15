@@ -19,6 +19,22 @@ app = Flask(__name__)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
+@app.errorhandler(404)
+def e404(e):
+    return render_template('error.j2', code=404, message='Not Found')
+
+@app.errorhandler(403)
+def e403(e):
+    return render_template('error.j2', code=403, message='Forbidden')
+
+@app.errorhandler(405)
+def e405(e):
+    return render_template('error.j2', code=405, message='Method Not Allowed')
+
+@app.errorhandler(500)
+def e500(e):
+    return render_template('error.j2', code=500, message='Internal Server Error')
+
 def add_globals():
     return {"user": app.config['MAIN_USER'], "title": app.config['PAGE_TITLE']}
 
@@ -48,13 +64,13 @@ def login():
                 return redirect(url_for('login'))
             login_user(user)
             flash("Logged in")
-            return redirect(request.args.get('next') or url_for('index'))
+            return redirect(request.args.get('next', type=str, default=None) or url_for('index'))
     return render_template('login.j2', form=LoginForm())
 
 @app.route('/')
 def index():
     page = request.args.get("page", type=int, default=0)
-    entries = db.get_frontpage(page)
+    entries = db.get_frontpage(page, private=not current_user.is_anonymous)
     return render_template('index.j2', entries=entries)
 
 @app.route('/entry/create', methods=["GET", "POST"])
@@ -63,18 +79,28 @@ def create():
     if request.method == "POST":
         form = EntryCreateForm()
         if form.validate_on_submit():
-            e = Entry(parse_comment_string(form.text.data), current_user)
+            e = Entry(parse_comment_string(form.text.data), current_user, form.private.data)
             eid = db.create_entry(e)
             return redirect(url_for('view_entry', eid=eid))
     return render_template('create.j2', form=EntryCreateForm())
 
 @app.route('/entry/<int:eid>')
 def view_entry(eid: int):
+    ent = db.get_entry(eid)
+    if not ent:
+        abort(404)
+    else:
+        return render_template('entry.j2', entry=ent, is_author=current_user==ent.author)
+    
+@app.route('/entry/<int:eid>/delete', methods=["POST"])
+def delete_entry(eid: int):
     e = db.get_entry(eid)
     if not e:
         abort(404)
-    else:
-        return render_template('entry.j2', entry=e)
+    if not e.author == current_user:
+        abort(403)
+    db.delete_entry(eid)
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     if len(argv) > 1:
@@ -99,4 +125,5 @@ if __name__ == "__main__":
     app.config.from_file('config.json', load=json.load)
     app.context_processor(add_globals)
     app.add_template_global(current_user, 'current_user')
+    app.add_template_global('base.j2', 'current_base')
     app.run(debug=True, host="0.0.0.0")

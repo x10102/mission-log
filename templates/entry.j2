@@ -1,9 +1,16 @@
 {% extends "base.j2" %}
 
 {% block body %}
-<div class="h-full px-8 py-6 sm:px-16 md:px-28">
+<div class="h-auto px-8 py-6 sm:px-16 md:px-28">
 <a class="block mb-4 text-white opacity-50 hover:opacity-80" href="{{url_for('index')}}"><< Back to main page </a>
+<div class="flex flex-row items-center justify-between">
 <h1 class="mb-4 text-4xl font-semibold text-white">{{entry.timestamp.strftime('%d.%m.%Y')}}</h1>
+{% if is_author %}
+<form method="post" action="{{url_for('delete_entry', eid=entry.eid)}}">
+    <button type="submit" class="px-2 py-1 font-semibold text-center text-white transition-all border-2 rounded-lg md:py-2 md:px-4 hover:bg-white/20">Delete entry</a>
+</form>
+{% endif %}
+</div>
 <hr class="mb-4">
     <div class="text-white entry-container text-l">
     <p class="text-white text-l">{{entry.text}}</p>

@@ -2,10 +2,15 @@
 
 {% block body %}
 <div class="flex flex-col items-center justify-start h-auto px-8 py-6 sm:px-16 md:px-28">
-    <form action="{{url_for('create')}}" class='flex flex-col items-center justify-normal' method="post">
+    <form action="{{url_for('create')}}" class='flex flex-col items-center justify-normal max-w-[95%]' method="post">
         {{form.hidden_tag()}}
-        {{form.text(cols=80, rows=20, class='post-area')}}
-        {{form.submit(class="btn-submit")}}
+        {{form.text(cols=80, rows=20, class='post-area max-w-[100%]')}}
+        <div class="flex flex-row justify-start w-full">
+        {{form.submit(class="mr-3 btn-submit")}}
+        {{form.private(class="hidden select-none peer", onchange="updateLabel(this)")}}
+        {{form.private.label(class='text-center select-none btn-submit peer-checked:bg-white/40', id="privateLabel")}}
+        </div>
     </form>
 </div>
+<script src="{{url_for('static', filename='js/newentry.js')}}"></script>
 {% endblock body %}
