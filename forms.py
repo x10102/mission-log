@@ -1,10 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, HiddenField, PasswordField
+from wtforms import StringField, SubmitField, HiddenField, PasswordField, BooleanField
 from wtforms.widgets import TextArea
 from wtforms.validators import EqualTo, Length
 
 class EntryCreateForm(FlaskForm):
     text = StringField('Text', widget=TextArea())
+    private = BooleanField('Public')
     submit = SubmitField('Send')
 
 class LoginForm(FlaskForm):
