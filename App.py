@@ -129,7 +129,6 @@ if __name__ == "__main__":
         password = env.get('INIT_PASSWORD')
         u = User(login=user, password=pw_hash(password), role=UserRole.OWNER)
         db.create_default_user(u)
-        del u
 
     app.config.from_file('config.json', load=json.load)
     app.context_processor(add_globals)
