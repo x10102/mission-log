@@ -85,13 +85,20 @@ class Database:
             self._tryexec(query, data)
     
     def get_frontpage(self, page: int = 0, private=False):
+        def text_preview(text):
+            line = text.split('<br>')[0]
+            stripped = remove_tags(line)
+            if len(stripped) > 120:
+                return stripped[:120]+'...'
+            else:
+                return stripped
         if not private:
             query = "SELECT id, timestamp, text, private FROM Entry WHERE private=0 ORDER BY id DESC LIMIT 20 OFFSET ?"
         else:
             query = "SELECT id, timestamp, text, private FROM Entry ORDER BY id DESC LIMIT 20 OFFSET ?"
         data = (page * 20,)
         rows = self._tryexec(query, data).fetchall()
-        entries = [fp_entry(row[0], datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), remove_tags(row[2]) if len(row[2]) < 150 else remove_tags(row[2][:147])+'...', row[3]) for row in rows]
+        entries = [fp_entry(row[0], datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), text_preview(row[3])) for row in rows]
         return entries
     
     def get_user(self, uid: int) -> t.Optional[User]:

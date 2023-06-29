@@ -2,9 +2,11 @@ FROM python:3.11.3-alpine3.17
 
 WORKDIR /app
 
-COPY requirements.txt .
-
 RUN apk add --no-cache rust cargo
+
+RUN pip install --no-cache-dir bcrypt
+
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
