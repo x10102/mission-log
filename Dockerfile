@@ -17,5 +17,3 @@ EXPOSE 8080
 RUN mkdir -p /app/data
 
 CMD ["python", "App.py"]
-
-VOLUME /data
