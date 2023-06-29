@@ -98,7 +98,7 @@ class Database:
             query = "SELECT id, timestamp, text, private FROM Entry ORDER BY id DESC LIMIT 20 OFFSET ?"
         data = (page * 20,)
         rows = self._tryexec(query, data).fetchall()
-        entries = [fp_entry(row[0], datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), text_preview(row[3])) for row in rows]
+        entries = [fp_entry(row[0], datetime.strptime(row[1], "%d-%m-%Y %H:%M:%S"), text_preview(row[2]), row[3]) for row in rows]
         return entries
     
     def get_user(self, uid: int) -> t.Optional[User]:
