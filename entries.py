@@ -8,5 +8,5 @@ class Entry():
     text: str
     author: User
     private: bool
-    timestamp: datetime = datetime.now()
+    timestamp: datetime
     eid: int = 0

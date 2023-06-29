@@ -16,6 +16,7 @@ from secrets import token_bytes
 from sys import argv
 from os import remove, environ as env
 import json
+from datetime import datetime
 
 app = Flask(__name__)
 login_manager = LoginManager(app)
@@ -81,7 +82,7 @@ def create():
     if request.method == "POST":
         form = EntryCreateForm()
         if form.validate_on_submit():
-            e = Entry(parse_comment_string(form.text.data), current_user, form.private.data)
+            e = Entry(parse_comment_string(form.text.data), current_user, form.private.data, datetime.now())
             eid = db.create_entry(e)
             return redirect(url_for('view_entry', eid=eid))
     return render_template('create.j2', form=EntryCreateForm())
